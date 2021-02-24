@@ -1,0 +1,36 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hyperbolic Minesweeper</title>
+    <link rel="stylesheet" href="style.scss" />
+  </head>
+  <body>
+    <div id="app">
+      <div id="renderer">
+        <svg
+          viewBox="-100 -100 200 200"
+          style="
+            padding: 32px;
+            width: min(100vw - 64px, 100 * var(--vh) - 64px);
+            height: min(100vw - 64px, 100 * var(--vh) - 64px);
+          "
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <svg
+            viewBox="-100 -100 200 200"
+            width="140"
+            height="140"
+            x="-70"
+            y="-70"
+            id="inner-group"
+            style="position: relative"
+          >
+            <g id="polygons"></g>
+          </svg>
+        </svg>
+      </div>
+    </div>
+    <script src="index.ts"></script>
+  </body>
+</html>
