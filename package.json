@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "parcel app/index.html",
     "build": "parcel build app/index.html",
-    "push-gh-pages": "push-dir --dir=dist --branch=gh-pages --cleanup --verbose"
+    "push-gh-pages": "rm -r dist && npm run build && push-dir --dir=dist --branch=gh-pages --cleanup --verbose"
   },
   "dependencies": {
     "deep-equal": "^2.0.5",
