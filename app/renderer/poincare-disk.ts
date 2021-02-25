@@ -1,14 +1,25 @@
 import assert = require("assert");
 import { clampMod, eq } from "~utils/math";
+import {
+  mobiusTransformation,
+  complexDivision,
+  complexAddition,
+  complexMultiplication,
+  complexSubtraction,
+} from "./complex";
 import Coordinate, {
   cartesian,
   cartesianAddition,
   cartesianCompat,
+  cartesianMetric,
   cartesianSubtraction,
   coordinateConversion,
   poincareDisk,
   poincareDiskCompat,
+  PoincareDiskCoordinate,
+  poincareDiskEq,
   polar,
+  polarCompat,
   polarEq,
 } from "./coordinate-systems";
 
@@ -38,18 +49,26 @@ export interface PoincareDiskLinearGeodesic {
   angle: number;
 }
 
-export function geodesicFromTwoPoints(
+export function getGeodesicFromTwoPoints(
   p1: Coordinate.Polar,
   p2: Coordinate.Polar
 ): PoincareDiskGeodesic {
+  assert(
+    !polarEq.equal(p1, p2),
+    "getGeodesicFromTwoPoints: given two points are the same."
+  );
+
   const halfwayClamp = clampMod(-Math.PI / 2, Math.PI / 2);
 
   // straight line case
   if (eq(p1.r, 0)) {
-    return geodesicFromTwoPoints(p2, p1);
+    return getGeodesicFromTwoPoints(p2, p1);
   }
   if (eq(p2.r, 0)) {
-    assert(p1.r !== 0, "geodesicFromTwoPoints: given two points are the same.");
+    assert(
+      p1.r !== 0,
+      "getGeodesicFromTwoPoints: given two points are the same."
+    );
     return {
       type: "linear",
       angle: halfwayClamp(p1.p),
@@ -64,7 +83,7 @@ export function geodesicFromTwoPoints(
 
   // circular case
   if (p1.r < p2.r) {
-    return geodesicFromTwoPoints(p2, p1);
+    return getGeodesicFromTwoPoints(p2, p1);
   }
   const p1Refl = polar(1 / p1.r, p1.p);
   const p1Polar = cartesianCompat.fromPolar(p1);
@@ -98,48 +117,34 @@ function getCircumcenter(
   return cartesian(x, y);
 }
 
-function complexMultiplication(p: Coordinate.Polar, q: Coordinate.Polar) {
-  return polar(p.r * q.r, p.p + q.p);
-}
-function complexDivision(p: Coordinate.Polar, q: Coordinate.Polar) {
-  assert(q.r !== 0, "complexDivision: division by 0.");
-  return polar(p.r / q.r, p.p - q.p);
-}
-function complexAddition(p: Coordinate.Polar, q: Coordinate.Polar) {
-  return cartesianCompat.toPolar(
-    cartesianAddition(
-      cartesianCompat.fromPolar(p),
-      cartesianCompat.fromPolar(q)
-    )
-  );
-}
-function complexSubtraction(p: Coordinate.Polar, q: Coordinate.Polar) {
-  return cartesianCompat.toPolar(
-    cartesianSubtraction(
-      cartesianCompat.fromPolar(p),
-      cartesianCompat.fromPolar(q)
-    )
-  );
-}
-
-function mobiusTransformation(
-  a: Coordinate.Polar,
-  b: Coordinate.Polar,
-  c: Coordinate.Polar,
-  d: Coordinate.Polar
+export function poincareDiskMetric(
+  p: PoincareDiskCoordinate,
+  q: PoincareDiskCoordinate
 ) {
-  return (z: Coordinate.Polar) =>
-    complexDivision(
-      complexAddition(complexMultiplication(a, z), b),
-      complexAddition(complexMultiplication(c, z), d)
-    );
+  if (poincareDiskEq.equal(p, q)) return 0;
+
+  const pInPolar = coordinateConversion(poincareDiskCompat, polarCompat)(p);
+  const qInPolar = coordinateConversion(poincareDiskCompat, polarCompat)(q);
+  const pInCartesian = coordinateConversion(
+    poincareDiskCompat,
+    cartesianCompat
+  )(p);
+  const qInCartesian = coordinateConversion(
+    poincareDiskCompat,
+    cartesianCompat
+  )(q);
+  const isometricInvariant =
+    (2 * cartesianMetric(pInCartesian, qInCartesian) ** 2) /
+    (1 - pInPolar.r ** 2) /
+    (1 - qInPolar.r ** 2);
+  return Math.acosh(1 + isometricInvariant);
 }
 
-function geodesicBoundaryIntersection(
+function getGeodesicBoundaryIntersection(
   p: Coordinate.Polar,
   q: Coordinate.Polar
 ): [Coordinate.Polar, Coordinate.Polar] {
-  const geodesic = geodesicFromTwoPoints(p, q);
+  const geodesic = getGeodesicFromTwoPoints(p, q);
   if (geodesic.type === "linear") {
     return [polar(1, geodesic.angle), polar(1, geodesic.angle + Math.PI)];
   }
@@ -151,7 +156,7 @@ function geodesicBoundaryIntersection(
   return [polar(1, geodesic.center.p + phi), polar(1, geodesic.center.p - phi)];
 }
 
-export function mobiusTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
+export function getTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
   const one = polar(1, 0);
   const zero = polar(0, 0);
   const negativeOne = polar(1, Math.PI);
@@ -159,7 +164,7 @@ export function mobiusTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
     return mobiusTransformation(one, zero, zero, one);
   }
 
-  const [w1, w2] = geodesicBoundaryIntersection(p, q);
+  const [w1, w2] = getGeodesicBoundaryIntersection(p, q);
   const a = complexDivision(
     complexAddition(
       complexMultiplication(
@@ -176,8 +181,8 @@ export function mobiusTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
   return mobiusTransformation(a, b, c, d);
 }
 
-export function geodesicReflection(p: Coordinate.Polar, q: Coordinate.Polar) {
-  const geodesic = geodesicFromTwoPoints(p, q);
+export function getReflection(p: Coordinate.Polar, q: Coordinate.Polar) {
+  const geodesic = getGeodesicFromTwoPoints(p, q);
   if (geodesic.type === "linear") {
     return (point: Coordinate.Polar) =>
       polar(point.r, 2 * geodesic.angle - point.p);

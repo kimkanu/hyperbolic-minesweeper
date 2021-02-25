@@ -1,16 +1,17 @@
-import { flow } from "fp-ts/lib/function";
+import { flow, pipe } from "fp-ts/lib/function";
+import { range } from "~utils/array";
 import { Cycle } from "~utils/cycle";
 import { renderConsecutiveArcs, renderPoint } from "./arc";
 import Coordinate, {
   poincareDisk,
   poincareDiskCompat,
-  PoincareDiskCoordinate,
   poincareDiskEq,
   polar,
 } from "./coordinate-systems";
 import {
-  geodesicReflection,
-  mobiusTranslation,
+  getReflection,
+  getTranslation,
+  poincareDiskMetric,
   polarRadiusToPoincareRadius,
 } from "./poincare-disk";
 
@@ -33,21 +34,29 @@ export function poincareDistanceBetweenAdjacentTiles(p: number, q: number) {
   return 2 * getTileInnerRadius(p, q);
 }
 
+type VertexIndex = number;
+type TileIndex = number;
+
 export interface HyperbolicRegularTile {
+  index: TileIndex;
   p: number;
   q: number;
   level: number; // starts from 0 (center)
-  center: PoincareDiskCoordinate;
-  vertices: Cycle<PoincareDiskCoordinate>; // .length === p
+  center: Coordinate.PoincareDisk;
+  vertexIndices: Cycle<VertexIndex>; // .length === p
 }
 export interface HyperbolicRegularTileCrossing {
-  ends: [number, number]; // smaller first
-  crossingEdge: [PoincareDiskCoordinate, PoincareDiskCoordinate]; // smaller first
+  ends: [TileIndex, TileIndex]; // smaller first
+  edge: [VertexIndex, VertexIndex]; // smaller first
 }
-export class HyperbolicRegularTileGraph {
-  tiles: HyperbolicRegularTile[] = [];
+export class HyperbolicRegularTiling {
+  static DISTANCE_RENDER_THRESHOLD = 5.5;
+  static DISTANCE_BLUR_THRESHOLD = 2.5;
 
+  currentOrigin: Coordinate.PoincareDisk = poincareDisk(0, 0);
+  tiles: HyperbolicRegularTile[] = [];
   crossings: HyperbolicRegularTileCrossing[] = [];
+  vertices: Coordinate.PoincareDisk[] = [];
 
   constructor(public p: number, public q: number) {
     this._addCenterTile();
@@ -67,116 +76,164 @@ export class HyperbolicRegularTileGraph {
   }
 
   private _addCenterTile() {
+    const vertexIndices = range(this.p);
+    this.vertices = vertexIndices.map((i) =>
+      poincareDiskCompat.fromPolar(
+        polar(getTileOuterRadius(this.p, this.q), ((2 * Math.PI) / this.p) * i)
+      )
+    );
     const centerTile: HyperbolicRegularTile = {
+      index: 0,
       p: this.p,
       q: this.q,
       level: 0,
       center: poincareDisk(0, 0),
-      vertices: new Cycle(
-        Array(this.p)
-          .fill(0)
-          .map((x, i) =>
-            poincareDiskCompat.fromPolar(
-              polar(
-                getTileOuterRadius(this.p, this.q),
-                ((2 * Math.PI) / this.p) * i
-              )
-            )
-          )
-      ),
+      vertexIndices: new Cycle(vertexIndices),
     };
     this.addTile(centerTile);
   }
 
+  private _getVertexIndex = (vertex: Coordinate.PoincareDisk) => {
+    const indexFromHistory = this.vertices.findIndex((v) =>
+      poincareDiskEq.equal(v, vertex)
+    );
+    if (indexFromHistory !== -1) return indexFromHistory;
+
+    // `vertex` is now a brand-new vertex
+    this.vertices.push(vertex);
+    return this.vertices.length - 1;
+  };
+
   addReflection(levelUp: boolean): boolean {
     const originalIndex = this.tiles.length - 1;
     const originalTile = this.tiles[originalIndex];
-    const lineStart = originalTile.vertices.get(0);
-    const lineEnd = originalTile.vertices.get(1);
+    const lineStartIndex = originalTile.vertexIndices.get(0);
+    const lineEndIndex = originalTile.vertexIndices.get(1);
+    const lineStart = this.vertices[lineStartIndex];
+    const lineEnd = this.vertices[lineEndIndex];
 
     // do reflection
-    const reflection = geodesicReflection(
+    const reflection = getReflection(
       poincareDiskCompat.toPolar(lineStart),
       poincareDiskCompat.toPolar(lineEnd)
     );
-    const vertices = new Cycle([
-      lineStart,
-      lineEnd,
-      ...originalTile.vertices.inner
-        .slice(2)
-        .map(
-          flow(
-            poincareDiskCompat.toPolar,
-            reflection,
-            poincareDiskCompat.fromPolar
-          )
-        ),
+
+    const additionalVertices = originalTile.vertexIndices.inner
+      .slice(2)
+      .map(
+        flow(
+          (index) => this.vertices[index],
+          poincareDiskCompat.toPolar,
+          reflection,
+          poincareDiskCompat.fromPolar
+        )
+      );
+
+    const vertexIndices = new Cycle([
+      lineStartIndex,
+      lineEndIndex,
+      ...additionalVertices.map(this._getVertexIndex),
     ]);
 
     // default crossing
     const crossing: HyperbolicRegularTileCrossing = {
       ends: [originalIndex, this.tiles.length],
-      crossingEdge: [vertices.get(0), vertices.get(1)],
+      edge: [lineStartIndex, lineEndIndex],
     };
     this.crossings.push(crossing);
-    vertices.reverse(1);
+    vertexIndices.reverse(1);
 
     const newTile: HyperbolicRegularTile = {
+      index: this.tiles.length,
       p: this.p,
       q: this.q,
       level: originalTile.level + (levelUp ? 1 : 0),
-      center: flow(
+      center: pipe(
+        originalTile.center,
         poincareDiskCompat.toPolar,
         reflection,
         poincareDiskCompat.fromPolar
-      )(originalTile.center),
-      vertices,
+      ),
+      vertexIndices,
     };
 
-    let flag = false;
+    let isEndOfLevel = false;
 
     // while the edge 0-1 is already occupied by a tile
     while (true) {
-      const tile: HyperbolicRegularTile | null =
+      const prevTile: HyperbolicRegularTile | null =
         this.tiles
           .filter((tile) =>
             [newTile.level - 1, newTile.level].includes(tile.level)
           )
           .find(
             (tile) =>
-              tile.vertices.inner.some((v) =>
-                poincareDiskEq.equal(v, vertices.get(0))
-              ) &&
-              tile.vertices.inner.some((v) =>
-                poincareDiskEq.equal(v, vertices.get(1))
-              )
+              tile.vertexIndices.inner.includes(vertexIndices.get(0)) &&
+              tile.vertexIndices.inner.includes(vertexIndices.get(1))
           ) ?? null;
-      if (tile === null) {
+      if (prevTile === null) {
         break;
       }
 
-      if (tile.level === newTile.level) {
-        flag = true;
+      if (prevTile.level === newTile.level) {
+        isEndOfLevel = true;
+      } else {
+        // fine-tune the vertices
+        const edge = [vertexIndices.get(0), vertexIndices.get(1)];
+        const reversedPrevVertexIndices = new Cycle(
+          prevTile.vertexIndices.reversed()
+        );
+        reversedPrevVertexIndices.rotate(
+          reversedPrevVertexIndices.inner.indexOf(edge[1]) -
+            newTile.vertexIndices.inner.indexOf(edge[1])
+        );
+        const reflection = getReflection(
+          poincareDiskCompat.toPolar(this.vertices[edge[0]]),
+          poincareDiskCompat.toPolar(this.vertices[edge[1]])
+        );
+        range(newTile.vertexIndices.length).forEach((i) => {
+          if (
+            reversedPrevVertexIndices.get(i) !== newTile.vertexIndices.get(i)
+          ) {
+            const reflectedVertex = pipe(
+              this.vertices[reversedPrevVertexIndices.get(i)],
+              poincareDiskCompat.toPolar,
+              reflection,
+              poincareDiskCompat.fromPolar
+            );
+            this.vertices[newTile.vertexIndices.get(i)] = reflectedVertex;
+          }
+        });
       }
 
       const crossing: HyperbolicRegularTileCrossing = {
-        ends: [originalIndex, this.tiles.length],
-        crossingEdge: [vertices.get(0), vertices.get(1)],
+        ends: [prevTile.index, newTile.index],
+        edge: [vertexIndices.get(0), vertexIndices.get(1)],
       };
       this.crossings.push(crossing);
-      vertices.rotate(-1);
+      vertexIndices.rotate(-1);
     }
 
     this.tiles.push(newTile);
 
-    return flag;
+    return isEndOfLevel;
   }
 
   get level() {
     return this.tiles.slice(-1)[0].level;
   }
 
-  addLevel() {
+  set level(level: number) {
+    if (this.level <= level) {
+      for (let l = this.level; l < level; l++) {
+        this._addLevel();
+      }
+    } else {
+      this.tiles = this.tiles.filter((tile) => tile.level <= level);
+    }
+  }
+
+  private _addLevel() {
     let start = true;
     let finish = false;
     while (!finish) {
@@ -206,12 +263,26 @@ export class HyperbolicRegularTileGraph {
     });
   }
 
-  render(dom: SVGGElement, origin: Coordinate.PoincareDisk) {
+  render(dom: SVGGElement, origin_: Coordinate.PoincareDisk) {
+    // TODO: implement origin translation
+    // const origin = pipe(
+    //   origin_,
+    //   poincareDiskCompat.toPolar,
+    //   getTranslation(
+    //     poincareDiskCompat.toPolar(this.currentOrigin),
+    //     polar(0, 0)
+    //   ),
+    //   poincareDiskCompat.fromPolar
+    // );
+    const origin = origin_;
+
     this.createPaths(dom);
+
+    dom.children.item(this.tiles.length - 1).setAttribute("fill", "red");
 
     const transformationPolar = flow(
       poincareDiskCompat.toPolar,
-      mobiusTranslation(poincareDiskCompat.toPolar(origin), polar(0, 0))
+      getTranslation(poincareDiskCompat.toPolar(origin), polar(0, 0))
     );
     const transformation = flow(
       transformationPolar,
@@ -220,16 +291,31 @@ export class HyperbolicRegularTileGraph {
 
     this.tiles.forEach((tile, i) => {
       const el = dom.children.item(i);
+      const distance = poincareDiskMetric(tile.center, origin);
+      if (distance > HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD) {
+        el.setAttribute("style", "opacity: 0");
+        return;
+      } else if (distance > HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD) {
+        const opacity =
+          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD - distance) /
+          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD -
+            HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD);
+        el.setAttribute("style", `opacity: ${opacity}`);
+      } else {
+        el.setAttribute("style", "opacity: 1");
+      }
       el.setAttribute(
         "d",
         `M ${renderPoint(
-          transformation(tile.vertices.get(0)),
+          transformation(this.vertices[tile.vertexIndices.get(0)]),
           poincareDiskCompat,
           " "
         )}
         ${renderConsecutiveArcs(
-          ...tile.vertices.inner.map(transformationPolar),
-          transformationPolar(tile.vertices.get(0))
+          ...tile.vertexIndices.inner
+            .map((i) => this.vertices[i])
+            .map(transformationPolar),
+          transformationPolar(this.vertices[tile.vertexIndices.get(0)])
         )}`
       );
     });

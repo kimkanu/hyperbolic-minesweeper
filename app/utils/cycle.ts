@@ -15,7 +15,7 @@ export class Cycle<T> {
   }
 
   // [0, 1, 2, 3, 4, 5] |> .rotate(2) |> [2, 3, 4, 5, 0, 1]
-  rotated(index: number = 0) {
+  rotated(index: number = 0): T[] {
     if (index < 0 || index >= this.inner.length) {
       const remainder =
         index - this.inner.length * Math.floor(index / this.inner.length);
@@ -29,7 +29,7 @@ export class Cycle<T> {
   }
 
   // [0, 1, 2, 3, 4, 5] |> .reverse(2) |> [4, 3, 2, 1, 0, 5]
-  reversed(index: number = 0) {
+  reversed(index: number = 0): T[] {
     const reversed = this.inner.slice(0).reverse();
     return new Cycle(reversed).rotated(2 * (length - index) - 1);
   }

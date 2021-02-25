@@ -1,49 +1,72 @@
-import { flow } from "fp-ts/lib/function";
 import Coordinate, {
   cartesian,
-  cartesianAddition,
   cartesianCompat,
-  cartesianSubtraction,
-  coordinateConversion,
   poincareDisk,
-  poincareDiskCompat,
+  poincareDiskEq,
   polar,
-  polarCompat,
 } from "~renderer/coordinate-systems";
-import {
-  geodesicFromTwoPoints,
-  geodesicReflection,
-  mobiusTranslation,
-  polarRadiusToPoincareRadius,
-} from "~renderer/poincare-disk";
-import {
-  getTileOuterRadius,
-  HyperbolicRegularTileGraph,
-} from "~renderer/tiling";
-import { Cycle } from "~utils/cycle";
-import { clampMod } from "~utils/math";
+import { HyperbolicRegularTiling } from "~renderer/tiling";
+
+/** Settings */
+const DISABLE_MOUSE_MOVE = false;
+const PADDING = 0;
+const INNER_SCALE = 70;
+const DISCOUNT_FACTOR = 0.8;
+const EXP_DISCOUNT_FACTOR = 0.97;
 
 window.onload = main;
 
-function drawPoint<F extends Coordinate.System>(
-  index: number,
-  point: F,
-  compat: Coordinate.Compat<F>
-) {
-  const inCartesian = coordinateConversion(compat, cartesianCompat)(point);
-  const el = document.getElementById("points").children[index];
-  el.setAttribute("r", `${1}`);
-  el.setAttribute("cx", `${inCartesian.x * 100}`);
-  el.setAttribute("cy", `${-inCartesian.y * 100}`);
+let origin: Coordinate.PoincareDisk = poincareDisk(0, 0);
+
+const tiling = new HyperbolicRegularTiling(5, 5);
+tiling.level = 4;
+
+function originsFromMousePosition(
+  x: number,
+  y: number,
+  maxDistance: number,
+  boundingRect: DOMRect
+): [Coordinate.PoincareDisk, Coordinate.Cartesian] {
+  const px =
+    ((x - boundingRect.x - PADDING) / (boundingRect.width - PADDING * 2)) *
+      100 -
+    50;
+  const py =
+    ((y - boundingRect.y - PADDING) / (boundingRect.height - PADDING * 2)) *
+      100 -
+    50;
+  const coordMayOverflow = cartesianCompat.toPolar(cartesian(px, py));
+  const pointInPolar: Coordinate.Polar = {
+    ...coordMayOverflow,
+    r: Math.min(coordMayOverflow.r * DISCOUNT_FACTOR, INNER_SCALE / 2),
+  };
+  const expDiscount = (d: number) =>
+    d ** EXP_DISCOUNT_FACTOR * maxDistance ** (1 - EXP_DISCOUNT_FACTOR);
+
+  const newOrigin = poincareDisk(
+    expDiscount(
+      Math.min(
+        maxDistance,
+        (pointInPolar.r / INNER_SCALE) * 2 * (maxDistance + 1)
+      )
+    ),
+    -pointInPolar.p
+  );
+
+  const pointInCartesian = cartesianCompat.fromPolar(
+    polar(Math.min(pointInPolar.r, maxDistance - 0.3), pointInPolar.p)
+  );
+  const innerGroupPosition = cartesian(
+    pointInCartesian.x * 2 - INNER_SCALE,
+    pointInCartesian.y * 2 - INNER_SCALE
+  );
+
+  return [newOrigin, innerGroupPosition];
 }
 
-const MAX_DISTANCE = 5;
-
-const tiling = new HyperbolicRegularTileGraph(4, 5);
-tiling.addLevel();
-tiling.addLevel();
-
 function onNewOrigin(newOrigin: Coordinate.PoincareDisk) {
+  origin = newOrigin;
+
   tiling.render(
     (document.getElementById("polygons") as unknown) as SVGGElement,
     newOrigin
@@ -54,40 +77,36 @@ function main(): void {
   setVh();
   window.addEventListener("resize", setVh);
 
-  onNewOrigin(poincareDisk(0, 0));
+  onNewOrigin(origin);
 
   document.getElementById("app").addEventListener("mousemove", (details) => {
+    if (DISABLE_MOUSE_MOVE) return;
+
     const boundingRect = document
       .getElementById("renderer")
       .getBoundingClientRect();
-    const px =
-      ((details.clientX - boundingRect.x - 32) / (boundingRect.width - 64)) *
-        100 -
-      50;
-    const py =
-      ((details.clientY - boundingRect.y - 32) / (boundingRect.height - 64)) *
-        100 -
-      50;
-    const coordMayOverflow = cartesianCompat.toPolar(cartesian(px, py));
-    const pointInPolar: Coordinate.Polar = {
-      ...coordMayOverflow,
-      r: Math.min(coordMayOverflow.r, 35),
-    };
-    const pointInCartesian = cartesianCompat.fromPolar(pointInPolar);
-
-    document
-      .getElementById("inner-group")
-      .setAttribute("x", `${pointInCartesian.x * 2 - 70}`);
-    document
-      .getElementById("inner-group")
-      .setAttribute("y", `${pointInCartesian.y * 2 - 70}`);
-
-    const newOrigin = poincareDisk(
-      Math.min(MAX_DISTANCE, (pointInPolar.r / 35) * (MAX_DISTANCE + 1)),
-      -pointInPolar.p
+    const [newOrigin, innerGroupPosition] = originsFromMousePosition(
+      details.clientX,
+      details.clientY,
+      tiling.level + 1,
+      boundingRect
     );
 
+    document
+      .getElementById("inner-group")
+      .setAttribute("x", `${innerGroupPosition.x}`);
+    document
+      .getElementById("inner-group")
+      .setAttribute("y", `${innerGroupPosition.y}`);
+
     onNewOrigin(newOrigin);
+  });
+
+  document.addEventListener("keyup", (e) => {
+    if (e.key === " ") {
+      // TODO: implement origin translation
+      tiling.currentOrigin = origin;
+    }
   });
 }
 

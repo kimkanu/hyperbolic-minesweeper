@@ -1,4 +1,4 @@
-export function clampMod(min: number, max: number, precision = 1e-7) {
+export function clampMod(min: number, max: number, precision = 1e-8) {
   return (n: number) => {
     const gap = max - min;
     const mod = (n: number, d: number) => n - d * Math.floor(n / d);
@@ -7,6 +7,6 @@ export function clampMod(min: number, max: number, precision = 1e-7) {
   };
 }
 
-export function eq(a: number, b: number, precision = 1e-6) {
+export function eq(a: number, b: number, precision = 1e-8) {
   return Math.abs(a - b) <= precision;
 }

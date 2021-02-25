@@ -7,7 +7,7 @@ import Coordinate, {
   cartesianSubtraction,
   coordinateConversion,
 } from "./coordinate-systems";
-import { geodesicFromTwoPoints } from "./poincare-disk";
+import { getGeodesicFromTwoPoints } from "./poincare-disk";
 
 export function renderPoint<F extends Coordinate.System>(
   point: F,
@@ -19,7 +19,7 @@ export function renderPoint<F extends Coordinate.System>(
 }
 
 export function renderArc(p: Coordinate.Polar, q: Coordinate.Polar): string {
-  const geodesic = geodesicFromTwoPoints(p, q);
+  const geodesic = getGeodesicFromTwoPoints(p, q);
   if (geodesic.type === "linear") {
     return `L ${renderPoint(q, polarCompat, " ")}`;
   }

@@ -91,6 +91,12 @@ export function cartesianSubtraction(
 ) {
   return cartesian(p.x - q.x, p.y - q.y);
 }
+export function cartesianMetric(
+  a: CartesianCoordinate,
+  b: CartesianCoordinate
+) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
 
 /**
  * Poincare disk coordinate system
@@ -117,7 +123,7 @@ export const poincareDiskCompat: CoordinateCompat<PoincareDiskCoordinate> = {
 };
 export const poincareDiskEq: Eq<PoincareDiskCoordinate> = {
   equal(a, b) {
-    return (eq(a.d, 0) && eq(b.d, 0)) || (eq(a.d, b.d) && eq(a.p, b.p));
+    return (eq(a.d, 0, 1e-3) && eq(b.d, 0, 1e-3)) || (eq(a.d, b.d, 1e-6) && eq(a.p, b.p, 1e-6));
   },
 };
 
