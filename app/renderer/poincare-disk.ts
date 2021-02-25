@@ -14,7 +14,6 @@ import Coordinate, {
   cartesianMetric,
   cartesianSubtraction,
   coordinateConversion,
-  poincareDisk,
   poincareDiskCompat,
   PoincareDiskCoordinate,
   poincareDiskEq,

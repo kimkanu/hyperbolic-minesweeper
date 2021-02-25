@@ -53,12 +53,11 @@ export class HyperbolicRegularTiling {
   static DISTANCE_RENDER_THRESHOLD = 5.5;
   static DISTANCE_BLUR_THRESHOLD = 2.5;
 
-  currentOrigin: Coordinate.PoincareDisk = poincareDisk(0, 0);
   tiles: HyperbolicRegularTile[] = [];
   crossings: HyperbolicRegularTileCrossing[] = [];
   vertices: Coordinate.PoincareDisk[] = [];
 
-  constructor(public p: number, public q: number) {
+  constructor(public p: number, public q: number, public g: SVGGElement) {
     this._addCenterTile();
   }
 
@@ -256,29 +255,16 @@ export class HyperbolicRegularTiling {
       el.setAttribute("vector-effect", "non-scaling-stroke");
 
       dom.appendChild(el);
-
-      el.addEventListener("click", () => {
+    });
+    this.tiles.forEach((tile, i) => {
+      dom.children.item(i).addEventListener("mousedown", () => {
         console.log(i);
       });
     });
   }
 
-  render(dom: SVGGElement, origin_: Coordinate.PoincareDisk) {
-    // TODO: implement origin translation
-    // const origin = pipe(
-    //   origin_,
-    //   poincareDiskCompat.toPolar,
-    //   getTranslation(
-    //     poincareDiskCompat.toPolar(this.currentOrigin),
-    //     polar(0, 0)
-    //   ),
-    //   poincareDiskCompat.fromPolar
-    // );
-    const origin = origin_;
-
-    this.createPaths(dom);
-
-    dom.children.item(this.tiles.length - 1).setAttribute("fill", "red");
+  render(origin: Coordinate.PoincareDisk) {
+    this.createPaths(this.g);
 
     const transformationPolar = flow(
       poincareDiskCompat.toPolar,
@@ -290,7 +276,7 @@ export class HyperbolicRegularTiling {
     );
 
     this.tiles.forEach((tile, i) => {
-      const el = dom.children.item(i);
+      const el = this.g.children.item(i);
       const distance = poincareDiskMetric(tile.center, origin);
       if (distance > HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD) {
         el.setAttribute("style", "opacity: 0");

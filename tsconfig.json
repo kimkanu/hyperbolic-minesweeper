@@ -5,7 +5,9 @@
       "~*": ["./*"]
     },
     "lib": ["ES2016", "DOM"],
-    "target": "ES5"
+    "target": "es6",
+    "module": "commonjs",
+    "moduleResolution": "node"
   },
   "include": ["app/**/*"]
 }

@@ -7,6 +7,10 @@ export function clampMod(min: number, max: number, precision = 1e-8) {
   };
 }
 
+export function clamp(min: number, max: number) {
+  return (n: number) => Math.max(min, Math.min(max, n));
+}
+
 export function eq(a: number, b: number, precision = 1e-8) {
   return Math.abs(a - b) <= precision;
 }

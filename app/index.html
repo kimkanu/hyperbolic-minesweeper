@@ -6,7 +6,57 @@
     <link rel="stylesheet" href="style.scss" />
   </head>
   <body>
+    <div id="cursor">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        xmlns:xlink="http://www.w3.org/1999/xlink"
+        enable-background="new 0 0 28 28"
+        xml:space="preserve"
+        viewBox="-1.8 -5.1 31 38"
+        width="40"
+        height="49"
+      >
+        <filter
+          xmlns="http://www.w3.org/2000/svg"
+          id="dropshadow"
+          height="130%"
+        >
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" />
+          <feOffset dx="0.8" dy="1.8" result="offsetblur" />
+          <feComponentTransfer>
+            <feFuncA type="linear" slope="0.45" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        <g viewBox="0 0 40 49" filter="url(#dropshadow)">
+          <polygon fill="#FFFFFF" points="0,0"></polygon>
+          <polygon fill="#FFFFFF" points="40,49"></polygon>
+          <polygon
+            fill="#FFFFFF"
+            points="8.2,20.9 8.2,4.9 19.8,16.5 13,16.5 12.6,16.6 "
+          ></polygon>
+          <polygon
+            fill="#FFFFFF"
+            points="17.3,21.6 13.7,23.1 9,12 12.7,10.5 "
+          ></polygon>
+          <rect
+            x="12.5"
+            y="13.6"
+            transform="matrix(0.9221 -0.3871 0.3871 0.9221 -5.7605 6.5909)"
+            width="2"
+            height="8"
+          ></rect>
+          <polygon
+            points="9.2,7.3 9.2,18.5 12.2,15.6 12.6,15.5 17.4,15.5 "
+          ></polygon>
+        </g>
+      </svg>
+    </div>
     <div id="app">
+      <div id="minimap"></div>
       <div id="renderer">
         <svg
           viewBox="-100 -100 200 200"
@@ -16,6 +66,13 @@
           "
           xmlns="http://www.w3.org/2000/svg"
         >
+          <defs>
+            <radialGradient id="myGradient">
+              <stop offset="60%" stop-color="rgba(0, 0, 0, 0.1)" />
+              <stop offset="80%" stop-color="rgba(0, 0, 0, 0.05)" />
+              <stop offset="95%" stop-color="rgba(0, 0, 0, 0)" />
+            </radialGradient>
+          </defs>
           <svg
             viewBox="-100 -100 200 200"
             width="140"
@@ -25,6 +82,7 @@
             id="inner-group"
             style="position: relative"
           >
+            <circle cx="0" cy="0" r="100" fill="url('#myGradient')"></circle>
             <g id="polygons"></g>
           </svg>
         </svg>
