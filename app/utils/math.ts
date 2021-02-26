@@ -14,3 +14,11 @@ export function clamp(min: number, max: number) {
 export function eq(a: number, b: number, precision = 1e-8) {
   return Math.abs(a - b) <= precision;
 }
+
+export function sum(...a: number[]) {
+  return a.reduce((x, y) => x + y, 0);
+}
+
+export function prod(...a: number[]) {
+  return a.reduce((x, y) => x * y, 1);
+}

@@ -1,4 +1,5 @@
 import assert = require("assert");
+import { prod, sum } from "~utils/math";
 import Coordinate, {
   polar,
   cartesianCompat,
@@ -6,22 +7,16 @@ import Coordinate, {
   cartesianSubtraction,
 } from "./coordinate-systems";
 
-export function complexMultiplication(
-  p: Coordinate.Polar,
-  q: Coordinate.Polar
-) {
-  return polar(p.r * q.r, p.p + q.p);
+export function complexMultiplication(...ps: Coordinate.Polar[]) {
+  return polar(prod(...ps.map((p) => p.r)), sum(...ps.map((p) => p.p)));
 }
 export function complexDivision(p: Coordinate.Polar, q: Coordinate.Polar) {
   assert(q.r !== 0, "complexDivision: division by 0.");
   return polar(p.r / q.r, p.p - q.p);
 }
-export function complexAddition(p: Coordinate.Polar, q: Coordinate.Polar) {
+export function complexAddition(...ps: Coordinate.Polar[]) {
   return cartesianCompat.toPolar(
-    cartesianAddition(
-      cartesianCompat.fromPolar(p),
-      cartesianCompat.fromPolar(q)
-    )
+    cartesianAddition(...ps.map(cartesianCompat.fromPolar))
   );
 }
 export function complexSubtraction(p: Coordinate.Polar, q: Coordinate.Polar) {
@@ -31,16 +26,4 @@ export function complexSubtraction(p: Coordinate.Polar, q: Coordinate.Polar) {
       cartesianCompat.fromPolar(q)
     )
   );
-}
-export function mobiusTransformation(
-  a: Coordinate.Polar,
-  b: Coordinate.Polar,
-  c: Coordinate.Polar,
-  d: Coordinate.Polar
-) {
-  return (z: Coordinate.Polar) =>
-    complexDivision(
-      complexAddition(complexMultiplication(a, z), b),
-      complexAddition(complexMultiplication(c, z), d)
-    );
 }

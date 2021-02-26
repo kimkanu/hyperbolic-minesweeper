@@ -8,6 +8,7 @@ import Coordinate, {
   poincareDiskEq,
   polar,
 } from "./coordinate-systems";
+import { MobiusTransformation } from "./mobius";
 import {
   getReflection,
   getTranslation,
@@ -285,14 +286,62 @@ export class HyperbolicRegularTiling {
       el.setAttribute(
         "d",
         `M ${renderPoint(
-          transformation(this.vertices[tile.vertexIndices.get(0)]),
+          transformation.applyPoincare(
+            this.vertices[tile.vertexIndices.get(0)]
+          ),
           poincareDiskCompat,
           " "
         )}
         ${renderConsecutiveArcs(
           ...[...tile.vertexIndices.inner, tile.vertexIndices.get(0)]
             .map((i) => this.vertices[i])
-            .map(transformation)
+            .map(transformation.applyPoincare)
+            .map(poincareDiskCompat.toPolar)
+        )}`
+      );
+    });
+  }
+
+  renderT(originTransform: MobiusTransformation) {
+    this.createPaths(this.g);
+
+    const transformation = originTransform.inverse;
+    console.log(
+      transformation.a,
+      transformation.b,
+      transformation.c,
+      transformation.d
+    );
+    const origin = poincareDiskCompat.fromPolar(originTransform.applyZero);
+
+    this.tiles.forEach((tile, i) => {
+      const el = this.g.children.item(i);
+      const distance = poincareDiskMetric(tile.center, origin);
+      if (distance > HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD) {
+        el.setAttribute("style", "opacity: 0");
+        return;
+      } else if (distance > HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD) {
+        const opacity =
+          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD - distance) /
+          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD -
+            HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD);
+        el.setAttribute("style", `opacity: ${opacity}`);
+      } else {
+        el.setAttribute("style", "opacity: 1");
+      }
+      el.setAttribute(
+        "d",
+        `M ${renderPoint(
+          transformation.applyPoincare(
+            this.vertices[tile.vertexIndices.get(0)]
+          ),
+          poincareDiskCompat,
+          " "
+        )}
+        ${renderConsecutiveArcs(
+          ...[...tile.vertexIndices.inner, tile.vertexIndices.get(0)]
+            .map((i) => this.vertices[i])
+            .map(transformation.applyPoincare)
             .map(poincareDiskCompat.toPolar)
         )}`
       );

@@ -2,7 +2,6 @@ import assert = require("assert");
 import { flow } from "fp-ts/lib/function";
 import { clampMod, eq } from "~utils/math";
 import {
-  mobiusTransformation,
   complexDivision,
   complexAddition,
   complexMultiplication,
@@ -22,6 +21,7 @@ import Coordinate, {
   polarCompat,
   polarEq,
 } from "./coordinate-systems";
+import { MobiusTransformation } from "./mobius";
 
 export function polarRadiusToPoincareRadius(r: number) {
   assert(
@@ -159,12 +159,12 @@ function getGeodesicBoundaryIntersection(
 export function getTranslationInPolar(
   p: Coordinate.Polar,
   q: Coordinate.Polar
-) {
+): MobiusTransformation {
   const one = polar(1, 0);
   const zero = polar(0, 0);
   const negativeOne = polar(1, Math.PI);
   if (polarEq.equal(p, q)) {
-    return mobiusTransformation(one, zero, zero, one);
+    return new MobiusTransformation(one, zero, zero, one);
   }
 
   const [w1, w2] = getGeodesicBoundaryIntersection(p, q);
@@ -181,20 +181,16 @@ export function getTranslationInPolar(
   const b = complexMultiplication(complexMultiplication(w1, w2), negativeOne);
   const c = one;
   const d = complexSubtraction(complexSubtraction(a, w1), w2);
-  return mobiusTransformation(a, b, c, d);
+  return new MobiusTransformation(a, b, c, d);
 }
 
 export const getTranslation = (
   p: Coordinate.PoincareDisk,
   q: Coordinate.PoincareDisk
 ) =>
-  flow(
-    poincareDiskCompat.toPolar,
-    getTranslationInPolar(
-      poincareDiskCompat.toPolar(p),
-      poincareDiskCompat.toPolar(q)
-    ),
-    poincareDiskCompat.fromPolar
+  getTranslationInPolar(
+    poincareDiskCompat.toPolar(p),
+    poincareDiskCompat.toPolar(q)
   );
 
 export function getReflection(p: Coordinate.Polar, q: Coordinate.Polar) {

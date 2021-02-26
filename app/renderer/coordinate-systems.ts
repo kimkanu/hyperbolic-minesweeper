@@ -1,5 +1,5 @@
 import { flow, identity } from "fp-ts/lib/function";
-import { clampMod, eq } from "~utils/math";
+import { clampMod, eq, sum } from "~utils/math";
 import {
   poincareRadiusToPolarRadius,
   polarRadiusToPoincareRadius,
@@ -79,11 +79,8 @@ export const cartesianEq: Eq<CartesianCoordinate> = {
     return eq(a.x, b.x) && eq(a.y, b.y);
   },
 };
-export function cartesianAddition(
-  p: CartesianCoordinate,
-  q: CartesianCoordinate
-) {
-  return cartesian(p.x + q.x, p.y + q.y);
+export function cartesianAddition(...ps: CartesianCoordinate[]) {
+  return cartesian(sum(...ps.map((p) => p.x)), sum(...ps.map((p) => p.y)));
 }
 export function cartesianSubtraction(
   p: CartesianCoordinate,
@@ -123,7 +120,10 @@ export const poincareDiskCompat: CoordinateCompat<PoincareDiskCoordinate> = {
 };
 export const poincareDiskEq: Eq<PoincareDiskCoordinate> = {
   equal(a, b) {
-    return (eq(a.d, 0, 1e-3) && eq(b.d, 0, 1e-3)) || (eq(a.d, b.d, 1e-6) && eq(a.p, b.p, 1e-6));
+    return (
+      (eq(a.d, 0, 1e-3) && eq(b.d, 0, 1e-3)) ||
+      (eq(a.d, b.d, 1e-6) && eq(a.p, b.p, 1e-6))
+    );
   },
 };
 
