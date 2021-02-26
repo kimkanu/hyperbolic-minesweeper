@@ -30,13 +30,13 @@ export interface Eq<F> {
  * Polar coordinate system
  */
 export interface PolarCoordinate extends CoordinateSystem {
-  type: "polar";
+  type: "p";
   r: number; // radius
   p: number; // angle (phi)
 }
 export function polar(r: number, p: number): PolarCoordinate {
   return {
-    type: "polar",
+    type: "p",
     r,
     p: clampMod(-Math.PI, Math.PI)(p),
   };
@@ -55,13 +55,13 @@ export const polarEq: Eq<PolarCoordinate> = {
  * Polar coordinate system
  */
 export interface CartesianCoordinate extends CoordinateSystem {
-  type: "cartesian";
+  type: "c";
   x: number;
   y: number;
 }
 export function cartesian(x: number, y: number): CartesianCoordinate {
   return {
-    type: "cartesian",
+    type: "c",
     x,
     y,
   };
@@ -99,13 +99,13 @@ export function cartesianMetric(
  * Poincare disk coordinate system
  */
 export interface PoincareDiskCoordinate extends CoordinateSystem {
-  type: "poincare-disk";
+  type: "P";
   d: number;
   p: number;
 }
 export function poincareDisk(d: number, p: number): PoincareDiskCoordinate {
   return {
-    type: "poincare-disk",
+    type: "P",
     d,
     p: clampMod(-Math.PI, Math.PI)(p),
   };

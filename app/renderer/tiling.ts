@@ -8,7 +8,7 @@ import Coordinate, {
   poincareDiskEq,
   polar,
 } from "./coordinate-systems";
-import { MobiusTransformation } from "./mobius";
+import { Mobius } from "./mobius";
 import {
   getReflection,
   getTranslation,
@@ -51,8 +51,8 @@ export interface HyperbolicRegularTileCrossing {
   edge: [VertexIndex, VertexIndex]; // smaller first
 }
 export class HyperbolicRegularTiling {
-  static DISTANCE_RENDER_THRESHOLD = 5.5;
-  static DISTANCE_BLUR_THRESHOLD = 2.5;
+  static DISTANCE_RENDER_THRESHOLD = 6;
+  static DISTANCE_BLUR_THRESHOLD = 3;
 
   tiles: HyperbolicRegularTile[] = [];
   crossings: HyperbolicRegularTileCrossing[] = [];
@@ -60,6 +60,10 @@ export class HyperbolicRegularTiling {
 
   constructor(public p: number, public q: number, public g: SVGGElement) {
     this._addCenterTile();
+  }
+
+  get maxDist(): number {
+    return this.tiles[this.tiles.length - 1].center.d;
   }
 
   getTile(index: number): HyperbolicRegularTile | null {
@@ -263,10 +267,11 @@ export class HyperbolicRegularTiling {
     });
   }
 
-  render(origin: Coordinate.PoincareDisk) {
+  render(originTransform: Mobius.Type) {
     this.createPaths(this.g);
 
-    const transformation = getTranslation(origin, poincareDisk(0, 0));
+    const transformation = Mobius.inverse(originTransform);
+    const origin = Mobius.atPoincareDiskZero(originTransform);
 
     this.tiles.forEach((tile, i) => {
       const el = this.g.children.item(i);
@@ -286,7 +291,7 @@ export class HyperbolicRegularTiling {
       el.setAttribute(
         "d",
         `M ${renderPoint(
-          transformation.applyPoincare(
+          Mobius.inPoincareDisk(transformation)(
             this.vertices[tile.vertexIndices.get(0)]
           ),
           poincareDiskCompat,
@@ -295,53 +300,7 @@ export class HyperbolicRegularTiling {
         ${renderConsecutiveArcs(
           ...[...tile.vertexIndices.inner, tile.vertexIndices.get(0)]
             .map((i) => this.vertices[i])
-            .map(transformation.applyPoincare)
-            .map(poincareDiskCompat.toPolar)
-        )}`
-      );
-    });
-  }
-
-  renderT(originTransform: MobiusTransformation) {
-    this.createPaths(this.g);
-
-    const transformation = originTransform.inverse;
-    console.log(
-      transformation.a,
-      transformation.b,
-      transformation.c,
-      transformation.d
-    );
-    const origin = poincareDiskCompat.fromPolar(originTransform.applyZero);
-
-    this.tiles.forEach((tile, i) => {
-      const el = this.g.children.item(i);
-      const distance = poincareDiskMetric(tile.center, origin);
-      if (distance > HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD) {
-        el.setAttribute("style", "opacity: 0");
-        return;
-      } else if (distance > HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD) {
-        const opacity =
-          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD - distance) /
-          (HyperbolicRegularTiling.DISTANCE_RENDER_THRESHOLD -
-            HyperbolicRegularTiling.DISTANCE_BLUR_THRESHOLD);
-        el.setAttribute("style", `opacity: ${opacity}`);
-      } else {
-        el.setAttribute("style", "opacity: 1");
-      }
-      el.setAttribute(
-        "d",
-        `M ${renderPoint(
-          transformation.applyPoincare(
-            this.vertices[tile.vertexIndices.get(0)]
-          ),
-          poincareDiskCompat,
-          " "
-        )}
-        ${renderConsecutiveArcs(
-          ...[...tile.vertexIndices.inner, tile.vertexIndices.get(0)]
-            .map((i) => this.vertices[i])
-            .map(transformation.applyPoincare)
+            .map(Mobius.inPoincareDisk(transformation))
             .map(poincareDiskCompat.toPolar)
         )}`
       );

@@ -2,10 +2,10 @@ import assert = require("assert");
 import { flow } from "fp-ts/lib/function";
 import { clampMod, eq } from "~utils/math";
 import {
-  complexDivision,
-  complexAddition,
-  complexMultiplication,
-  complexSubtraction,
+  complexDivision as div,
+  complexAddition as add,
+  complexMultiplication as mul,
+  complexSubtraction as sub,
 } from "./complex";
 import Coordinate, {
   cartesian,
@@ -21,7 +21,7 @@ import Coordinate, {
   polarCompat,
   polarEq,
 } from "./coordinate-systems";
-import { MobiusTransformation } from "./mobius";
+import { Mobius } from "./mobius";
 
 export function polarRadiusToPoincareRadius(r: number) {
   assert(
@@ -159,29 +159,19 @@ function getGeodesicBoundaryIntersection(
 export function getTranslationInPolar(
   p: Coordinate.Polar,
   q: Coordinate.Polar
-): MobiusTransformation {
+): Mobius.Type {
   const one = polar(1, 0);
-  const zero = polar(0, 0);
   const negativeOne = polar(1, Math.PI);
   if (polarEq.equal(p, q)) {
-    return new MobiusTransformation(one, zero, zero, one);
+    return Mobius.identity;
   }
 
   const [w1, w2] = getGeodesicBoundaryIntersection(p, q);
-  const a = complexDivision(
-    complexAddition(
-      complexMultiplication(
-        q,
-        complexSubtraction(complexSubtraction(p, w1), w2)
-      ),
-      complexMultiplication(w1, w2)
-    ),
-    complexSubtraction(p, q)
-  );
-  const b = complexMultiplication(complexMultiplication(w1, w2), negativeOne);
+  const a = div(add(mul(q, sub(sub(p, w1), w2)), mul(w1, w2)), sub(p, q));
+  const b = mul(mul(w1, w2), negativeOne);
   const c = one;
-  const d = complexSubtraction(complexSubtraction(a, w1), w2);
-  return new MobiusTransformation(a, b, c, d);
+  const d = sub(sub(a, w1), w2);
+  return [a, b, c, d];
 }
 
 export const getTranslation = (

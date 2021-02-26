@@ -1,11 +1,18 @@
 import assert = require("assert");
-import { prod, sum } from "~utils/math";
+import { clampMod, prod, sum } from "~utils/math";
 import Coordinate, {
-  polar,
   cartesianCompat,
   cartesianAddition,
   cartesianSubtraction,
 } from "./coordinate-systems";
+
+function polar(r: number, p: number): Coordinate.Polar {
+  return {
+    type: "p",
+    r,
+    p: clampMod(-Math.PI, Math.PI)(p),
+  };
+}
 
 export function complexMultiplication(...ps: Coordinate.Polar[]) {
   return polar(prod(...ps.map((p) => p.r)), sum(...ps.map((p) => p.p)));
@@ -27,3 +34,6 @@ export function complexSubtraction(p: Coordinate.Polar, q: Coordinate.Polar) {
     )
   );
 }
+
+export const one = polar(1, 0);
+export const zero = polar(0, 0);

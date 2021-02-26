@@ -63,3 +63,13 @@ typings/
 # Parcel related files
 dist/
 .cache/
+
+# WASM
+wasm/target
+wasm/**/*.rs.bk
+wasm/Cargo.lock
+wasm/bin/
+wasm/pkg/
+wasm/wasm-pack.log
+# webpack server directory for testing wasm file
+wasm/www
