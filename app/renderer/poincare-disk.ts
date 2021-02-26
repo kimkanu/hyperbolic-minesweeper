@@ -1,4 +1,5 @@
 import assert = require("assert");
+import { flow } from "fp-ts/lib/function";
 import { clampMod, eq } from "~utils/math";
 import {
   mobiusTransformation,
@@ -155,7 +156,10 @@ function getGeodesicBoundaryIntersection(
   return [polar(1, geodesic.center.p + phi), polar(1, geodesic.center.p - phi)];
 }
 
-export function getTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
+export function getTranslationInPolar(
+  p: Coordinate.Polar,
+  q: Coordinate.Polar
+) {
   const one = polar(1, 0);
   const zero = polar(0, 0);
   const negativeOne = polar(1, Math.PI);
@@ -179,6 +183,19 @@ export function getTranslation(p: Coordinate.Polar, q: Coordinate.Polar) {
   const d = complexSubtraction(complexSubtraction(a, w1), w2);
   return mobiusTransformation(a, b, c, d);
 }
+
+export const getTranslation = (
+  p: Coordinate.PoincareDisk,
+  q: Coordinate.PoincareDisk
+) =>
+  flow(
+    poincareDiskCompat.toPolar,
+    getTranslationInPolar(
+      poincareDiskCompat.toPolar(p),
+      poincareDiskCompat.toPolar(q)
+    ),
+    poincareDiskCompat.fromPolar
+  );
 
 export function getReflection(p: Coordinate.Polar, q: Coordinate.Polar) {
   const geodesic = getGeodesicFromTwoPoints(p, q);

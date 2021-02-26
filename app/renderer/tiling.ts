@@ -255,9 +255,8 @@ export class HyperbolicRegularTiling {
       el.setAttribute("vector-effect", "non-scaling-stroke");
 
       dom.appendChild(el);
-    });
-    this.tiles.forEach((tile, i) => {
-      dom.children.item(i).addEventListener("mousedown", () => {
+
+      el.addEventListener("click", () => {
         console.log(i);
       });
     });
@@ -266,14 +265,7 @@ export class HyperbolicRegularTiling {
   render(origin: Coordinate.PoincareDisk) {
     this.createPaths(this.g);
 
-    const transformationPolar = flow(
-      poincareDiskCompat.toPolar,
-      getTranslation(poincareDiskCompat.toPolar(origin), polar(0, 0))
-    );
-    const transformation = flow(
-      transformationPolar,
-      poincareDiskCompat.fromPolar
-    );
+    const transformation = getTranslation(origin, poincareDisk(0, 0));
 
     this.tiles.forEach((tile, i) => {
       const el = this.g.children.item(i);
@@ -298,10 +290,10 @@ export class HyperbolicRegularTiling {
           " "
         )}
         ${renderConsecutiveArcs(
-          ...tile.vertexIndices.inner
+          ...[...tile.vertexIndices.inner, tile.vertexIndices.get(0)]
             .map((i) => this.vertices[i])
-            .map(transformationPolar),
-          transformationPolar(this.vertices[tile.vertexIndices.get(0)])
+            .map(transformation)
+            .map(poincareDiskCompat.toPolar)
         )}`
       );
     });

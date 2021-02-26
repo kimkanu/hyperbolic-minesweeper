@@ -1,4 +1,4 @@
-import { pipe } from "fp-ts/lib/function";
+import { identity, pipe } from "fp-ts/lib/function";
 import {
   PointerClickEvent,
   PointerLockChangeEvent,
@@ -11,14 +11,13 @@ import Coordinate, {
   cartesianCompat,
   cartesianSubtraction,
   poincareDisk,
-  poincareDiskCompat,
   polar,
 } from "~renderer/coordinate-systems";
 import { getTranslation } from "~renderer/poincare-disk";
 import { HyperbolicRegularTiling } from "~renderer/tiling";
 
 /** Settings */
-const DISABLE_MOUSE_MOVE = false;
+let DISABLE_MOUSE_MOVE = false;
 const PADDING = 0;
 const INNER_SCALE = 70;
 
@@ -30,8 +29,9 @@ pointerManager.addEventListener(
   "pointerpositionchange",
   (e: PointerPositionChangeEvent) => {
     const CURSOR_MARGIN = 12.88333;
-    document.getElementById("cursor").style.left = `${e.x - CURSOR_MARGIN}px`;
-    document.getElementById("cursor").style.top = `${e.y - CURSOR_MARGIN}px`;
+    document.getElementById("cursor").style.transform = `translate(${
+      e.x - CURSOR_MARGIN
+    }px, ${e.y - CURSOR_MARGIN}px)`;
   }
 );
 pointerManager.addEventListener(
@@ -48,6 +48,12 @@ let origin: Coordinate.PoincareDisk = poincareDisk(0, 0);
 
 // origin for translating cursor position into poincare coord
 let lockedOrigin: Coordinate.PoincareDisk = poincareDisk(0, 0);
+
+// TODO: replace the above with
+// let lockedTransform = identity;
+
+
+
 // in cartesian; each coordinate in percent
 let lockedCursorPosition: Coordinate.Cartesian = cartesian(0, 0);
 
@@ -58,7 +64,7 @@ tiling.level = 2;
 function originsFromMousePosition(
   x: number,
   y: number,
-  maxDistance: number
+  scale: number
 ): [Coordinate.PoincareDisk, Coordinate.Cartesian] {
   const boundingRect = document
     .getElementById("renderer")
@@ -80,22 +86,11 @@ function originsFromMousePosition(
     ...coordMayOverflow,
     r: Math.min(coordMayOverflow.r, INNER_SCALE / 2),
   };
-  const translation = getTranslation(
-    polar(0, 0),
-    poincareDiskCompat.toPolar(lockedOrigin)
-  );
+  const translation = getTranslation(poincareDisk(0, 0), lockedOrigin);
 
   const newOrigin = pipe(
-    poincareDisk(
-      Math.min(
-        maxDistance,
-        (pointInPolar.r / INNER_SCALE) * 2 * (maxDistance + 1)
-      ),
-      -pointInPolar.p
-    ),
-    poincareDiskCompat.toPolar,
-    translation,
-    poincareDiskCompat.fromPolar
+    poincareDisk((pointInPolar.r / INNER_SCALE) * scale, -pointInPolar.p),
+    translation
   );
 
   const pointInCartesian = cartesianCompat.fromPolar(
@@ -133,7 +128,7 @@ function main(): void {
       const [newOrigin, innerGroupPosition] = originsFromMousePosition(
         e.x,
         e.y,
-        tiling.level + 2
+        2 * tiling.level + 6
       );
 
       setInnerGroupPosition(innerGroupPosition);
@@ -149,6 +144,9 @@ function main(): void {
     } else if (e.key === "z") {
       resetOrigin();
       rerender();
+    } else if (e.key === "x") {
+      DISABLE_MOUSE_MOVE = !DISABLE_MOUSE_MOVE;
+      rerender();
     }
   });
 }
@@ -157,7 +155,7 @@ function rerender() {
   const [newOrigin, innerGroupPosition] = originsFromMousePosition(
     pointerManager.x,
     pointerManager.y,
-    tiling.level + 2
+    2 * tiling.level + 6
   );
 
   setInnerGroupPosition(innerGroupPosition);
