@@ -11,7 +11,6 @@ import Coordinate, {
 import { Mobius } from "./mobius";
 import {
   getReflection,
-  getTranslation,
   poincareDiskMetric,
   polarRadiusToPoincareRadius,
 } from "./poincare-disk";

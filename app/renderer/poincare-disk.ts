@@ -1,12 +1,5 @@
 import assert = require("assert");
-import { flow } from "fp-ts/lib/function";
 import { clampMod, eq } from "~utils/math";
-import {
-  complexDivision as div,
-  complexAddition as add,
-  complexMultiplication as mul,
-  complexSubtraction as sub,
-} from "./complex";
 import Coordinate, {
   cartesian,
   cartesianAddition,
@@ -140,48 +133,21 @@ export function poincareDiskMetric(
   return Math.acosh(1 + isometricInvariant);
 }
 
-function getGeodesicBoundaryIntersection(
-  p: Coordinate.Polar,
-  q: Coordinate.Polar
-): [Coordinate.Polar, Coordinate.Polar] {
-  const geodesic = getGeodesicFromTwoPoints(p, q);
-  if (geodesic.type === "linear") {
-    return [polar(1, geodesic.angle), polar(1, geodesic.angle + Math.PI)];
-  }
-
-  const phi = Math.abs(
-    Math.asin(geodesic.center.r / Math.sqrt(1 + geodesic.radius ** 2)) -
-      Math.atan2(1, geodesic.radius)
-  );
-  return [polar(1, geodesic.center.p + phi), polar(1, geodesic.center.p - phi)];
-}
-
-export function getTranslationInPolar(
-  p: Coordinate.Polar,
-  q: Coordinate.Polar
-): Mobius.Type {
+export function getTranslationInPolar(p: Coordinate.Polar): Mobius.Type {
   const one = polar(1, 0);
-  const negativeOne = polar(1, Math.PI);
-  if (polarEq.equal(p, q)) {
+  if (polarEq.equal(p, polar(0, 0))) {
     return Mobius.identity;
   }
 
-  const [w1, w2] = getGeodesicBoundaryIntersection(p, q);
-  const a = div(add(mul(q, sub(sub(p, w1), w2)), mul(w1, w2)), sub(p, q));
-  const b = mul(mul(w1, w2), negativeOne);
-  const c = one;
-  const d = sub(sub(a, w1), w2);
-  return [a, b, c, d];
+  const pCart = cartesianCompat.fromPolar(p);
+  const pBarCart = cartesian(pCart.x, -pCart.y);
+  const pBar = cartesianCompat.toPolar(pBarCart);
+
+  return [one, p, pBar, one];
 }
 
-export const getTranslation = (
-  p: Coordinate.PoincareDisk,
-  q: Coordinate.PoincareDisk
-) =>
-  getTranslationInPolar(
-    poincareDiskCompat.toPolar(p),
-    poincareDiskCompat.toPolar(q)
-  );
+export const getTranslation = (p: Coordinate.PoincareDisk) =>
+  getTranslationInPolar(poincareDiskCompat.toPolar(p));
 
 export function getReflection(p: Coordinate.Polar, q: Coordinate.Polar) {
   const geodesic = getGeodesicFromTwoPoints(p, q);

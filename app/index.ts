@@ -26,8 +26,9 @@ let wheelLock = 0;
 
 const g = (document.getElementById("polygons") as unknown) as SVGGElement;
 const tiling = new HyperbolicRegularTiling(5, 5, g);
-tiling.level = 2;
-console.log(tiling.tiles.slice(-1)[0].center.d);
+tiling.level = 3;
+console.log(tiling.tiles.length);
+console.log(tiling.vertices.length);
 
 function main(): void {
   setVh();
@@ -45,9 +46,9 @@ function main(): void {
   document.addEventListener("wheel", wheelHandler());
 }
 
-const stepSizeFactorDecrement = 0.006;
+const stepSizeFactorDecrement = 0.0008 / 7;
 
-function wheelHandler(stepSizeFactor = 0.014, _boundingRect?: DOMRect) {
+function wheelHandler(stepSizeFactor = 0.0008, _boundingRect?: DOMRect) {
   const boundingRect =
     _boundingRect ??
     document.getElementById("renderer").getBoundingClientRect();
@@ -76,7 +77,7 @@ function wheelHandler(stepSizeFactor = 0.014, _boundingRect?: DOMRect) {
       if (stepSizeFactor > stepSizeFactorDecrement) {
         wheelHandler(stepSizeFactor - stepSizeFactorDecrement, boundingRect)(e);
       }
-    }, 40);
+    }, 15);
   };
 }
 
@@ -94,7 +95,7 @@ function getOriginTransform(
 
   const newOriginTransform = Mobius.compose(
     originTransform,
-    getTranslation(poincareDisk(0, 0), poincareDisk(stepSize, coord.p))
+    getTranslation(poincareDisk(stepSize, coord.p))
   );
 
   const newOrigin = Mobius.atPolarZero(newOriginTransform);
