@@ -86,7 +86,7 @@ Now, we need to obtain $\delta_u$. Let $v$ and $w$ have $\delta_v$ and $\delta_w
 
 $$r_v^* = 1 - |v| = \frac{2}{e^{\delta_v} + 1}, \quad r_w^* = 1 - |w| = \frac{2}{e^{\delta_w} + 1}.$$
 
-Then, we have $$r_u^* = 1 - |u| = \frac{4e^{\delta_v}}{(e^{\delta_v} + 1)^2}\cdot\frac{4e^{\delta_w}}{(e^{\delta_w} + 1)^2}\cdot \frac{1}{|1 + \bar{v} \tilde{w}|(|1 + \bar{v} \tilde{w}| + |v + \tilde{w}|)}$$
+Then, we have $$r_u^* = 1 - |u| = \frac{4e^{\delta_v}}{(e^{\delta_v} + 1)^2}\cdot\frac{4e^{\delta_w}}{(e^{\delta_w} + 1)^2}\cdot \frac{1}{|1 + \bar{v} {w}|(|1 + \bar{v} {w}| + |v + {w}|)}$$
 
 where $1 + \bar{v} w$ and $v + w$ are calculated as follows:
 
@@ -97,8 +97,8 @@ $$1 + \bar{v} w = \begin{cases}
 
 and
 
-$$ v + \tilde w = \begin{cases}
-e^{i\varpi} \left(\frac{2(e^{\delta_v} + e^{\delta_w})}{(e^{\delta_v} + 1)(e^{\delta_w} + 1)} - \frac{e^{\delta_w - 1}}{e^{\delta_w + 1}}(e^{i\eta} - 1)\right), & \bigl| |v| - |w| \bigr| < \varepsilon_r\text{ and }|\eta| < \varepsilon_{\eta}  \\
+$$ v + w = \begin{cases}
+e^{i\varpi} \left(\frac{2(e^{\delta_v} + e^{\delta_w})}{(e^{\delta_v} + 1)(e^{\delta_w} + 1)} - \frac{e^{\delta_w} - 1}{e^{\delta_w} + 1}(e^{i\eta} - 1)\right), & \bigl| |v| - |w| \bigr| < \varepsilon_r\text{ and }|\eta| < \varepsilon_{\eta}  \\
 \text{direct calculation}, &\text{otherwise}
 \end{cases} $$
 
@@ -108,7 +108,7 @@ For an accurate calculation of $\delta_u = \log\left( \frac{2}{r_u^*} - 1 \right
 
 $$ \log x - \log(x\mp 1) = \sum_{k=1}^\infty \frac{(\pm 1)^k}{kx^k}. $$
 
-Thus, for $r_u^* < 2 \varepsilon_{\rho}$ small enough,
+Thus, for $r_u^* < \varepsilon_r$ small enough,
 
 $$ \begin{aligned}
 \delta_u = \log\left( \frac{2}{r_u^*} - 1 \right) &= \log \frac{2}{r_u^*} - \sum_{k=1}^\infty \frac{(r_u^*)^k}{k 2^k}
@@ -118,7 +118,7 @@ $$ \begin{aligned}
 \\&\quad - \log |1+\bar v w| - \log(|1+\bar v w| + |v + w|) - \sum_{k=1}^\infty \frac{(r_u^*)^k}{k 2^k}.
 \end{aligned} $$
 
-Otherwise, just $\delta_u = \log(\frac{2}{r_u^*} - 1)$ would be enough.
+Otherwise, just $\delta_u = \log\left(\frac{2}{r_u^*} - 1\right)$ would be enough.
 
 
 #### Calculation of $\boldsymbol{T_{e^{-i\theta} \dagger^m(w)} \circ T_v = R_\psi \circ T_u}$
@@ -131,5 +131,5 @@ and
 
 $$ u = T_v(e^{-i\theta} \dagger^m(w)) $$
 
-using calculation methods described above, for appropriate epsilon values $\varepsilon_r$, $\varepsilon_\eta$, and $\varepsilon_\rho$.
+using calculation methods described above, for appropriate epsilon values $\varepsilon_r$ and $\varepsilon_\eta$.
 

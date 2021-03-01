@@ -108,9 +108,9 @@ Now, we need to obtain <!-- $\delta_u$ --> <img style="transform: translateY(0.1
 
 <div align="center"><img style="background: white;" src="https://i.upmath.me/svg/r_v%5E*%20%3D%201%20-%20%7Cv%7C%20%3D%20%5Cfrac%7B2%7D%7Be%5E%7B%5Cdelta_v%7D%20%2B%201%7D%2C%20%5Cquad%20r_w%5E*%20%3D%201%20-%20%7Cw%7C%20%3D%20%5Cfrac%7B2%7D%7Be%5E%7B%5Cdelta_w%7D%20%2B%201%7D."></div>
 
-Then, we have <!-- $$r_u^* = 1 - |u| = \frac{4e^{\delta_v}}{(e^{\delta_v} + 1)^2}\cdot\frac{4e^{\delta_w}}{(e^{\delta_w} + 1)^2}\cdot \frac{1}{|1 + \bar{v} \tilde{w}|(|1 + \bar{v} \tilde{w}| + |v + \tilde{w}|)}$$ --> 
+Then, we have <!-- $$r_u^* = 1 - |u| = \frac{4e^{\delta_v}}{(e^{\delta_v} + 1)^2}\cdot\frac{4e^{\delta_w}}{(e^{\delta_w} + 1)^2}\cdot \frac{1}{|1 + \bar{v} {w}|(|1 + \bar{v} {w}| + |v + {w}|)}$$ --> 
 
-<div align="center"><img style="background: white;" src="https://i.upmath.me/svg/r_u%5E*%20%3D%201%20-%20%7Cu%7C%20%3D%20%5Cfrac%7B4e%5E%7B%5Cdelta_v%7D%7D%7B(e%5E%7B%5Cdelta_v%7D%20%2B%201)%5E2%7D%5Ccdot%5Cfrac%7B4e%5E%7B%5Cdelta_w%7D%7D%7B(e%5E%7B%5Cdelta_w%7D%20%2B%201)%5E2%7D%5Ccdot%20%5Cfrac%7B1%7D%7B%7C1%20%2B%20%5Cbar%7Bv%7D%20%5Ctilde%7Bw%7D%7C(%7C1%20%2B%20%5Cbar%7Bv%7D%20%5Ctilde%7Bw%7D%7C%20%2B%20%7Cv%20%2B%20%5Ctilde%7Bw%7D%7C)%7D"></div>
+<div align="center"><img style="background: white;" src="https://i.upmath.me/svg/r_u%5E*%20%3D%201%20-%20%7Cu%7C%20%3D%20%5Cfrac%7B4e%5E%7B%5Cdelta_v%7D%7D%7B(e%5E%7B%5Cdelta_v%7D%20%2B%201)%5E2%7D%5Ccdot%5Cfrac%7B4e%5E%7B%5Cdelta_w%7D%7D%7B(e%5E%7B%5Cdelta_w%7D%20%2B%201)%5E2%7D%5Ccdot%20%5Cfrac%7B1%7D%7B%7C1%20%2B%20%5Cbar%7Bv%7D%20%7Bw%7D%7C(%7C1%20%2B%20%5Cbar%7Bv%7D%20%7Bw%7D%7C%20%2B%20%7Cv%20%2B%20%7Bw%7D%7C)%7D"></div>
 
 where <!-- $1 + \bar{v} w$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/1%20%2B%20%5Cbar%7Bv%7D%20w"> and <!-- $v + w$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/v%20%2B%20w"> are calculated as follows:
 
@@ -123,12 +123,12 @@ where <!-- $1 + \bar{v} w$ --> <img style="transform: translateY(0.1em); backgro
 
 and
 
-<!-- $$ v + \tilde w = \begin{cases}
-e^{i\varpi} \left(\frac{2(e^{\delta_v} + e^{\delta_w})}{(e^{\delta_v} + 1)(e^{\delta_w} + 1)} - \frac{e^{\delta_w - 1}}{e^{\delta_w + 1}}(e^{i\eta} - 1)\right), & \bigl| |v| - |w| \bigr| < \varepsilon_r\text{ and }|\eta| < \varepsilon_{\eta}  \\
+<!-- $$ v + w = \begin{cases}
+e^{i\varpi} \left(\frac{2(e^{\delta_v} + e^{\delta_w})}{(e^{\delta_v} + 1)(e^{\delta_w} + 1)} - \frac{e^{\delta_w} - 1}{e^{\delta_w} + 1}(e^{i\eta} - 1)\right), & \bigl| |v| - |w| \bigr| < \varepsilon_r\text{ and }|\eta| < \varepsilon_{\eta}  \\
 \text{direct calculation}, &\text{otherwise}
 \end{cases} $$ --> 
 
-<div align="center"><img style="background: white;" src="https://i.upmath.me/svg/v%20%2B%20%5Ctilde%20w%20%3D%20%5Cbegin%7Bcases%7D%0D%0Ae%5E%7Bi%5Cvarpi%7D%20%5Cleft(%5Cfrac%7B2(e%5E%7B%5Cdelta_v%7D%20%2B%20e%5E%7B%5Cdelta_w%7D)%7D%7B(e%5E%7B%5Cdelta_v%7D%20%2B%201)(e%5E%7B%5Cdelta_w%7D%20%2B%201)%7D%20-%20%5Cfrac%7Be%5E%7B%5Cdelta_w%20-%201%7D%7D%7Be%5E%7B%5Cdelta_w%20%2B%201%7D%7D(e%5E%7Bi%5Ceta%7D%20-%201)%5Cright)%2C%20%26%20%5Cbigl%7C%20%7Cv%7C%20-%20%7Cw%7C%20%5Cbigr%7C%20%3C%20%5Cvarepsilon_r%5Ctext%7B%20and%20%7D%7C%5Ceta%7C%20%3C%20%5Cvarepsilon_%7B%5Ceta%7D%20%20%5C%5C%0D%0A%5Ctext%7Bdirect%20calculation%7D%2C%20%26%5Ctext%7Botherwise%7D%0D%0A%5Cend%7Bcases%7D"></div>
+<div align="center"><img style="background: white;" src="https://i.upmath.me/svg/v%20%2B%20w%20%3D%20%5Cbegin%7Bcases%7D%0D%0Ae%5E%7Bi%5Cvarpi%7D%20%5Cleft(%5Cfrac%7B2(e%5E%7B%5Cdelta_v%7D%20%2B%20e%5E%7B%5Cdelta_w%7D)%7D%7B(e%5E%7B%5Cdelta_v%7D%20%2B%201)(e%5E%7B%5Cdelta_w%7D%20%2B%201)%7D%20-%20%5Cfrac%7Be%5E%7B%5Cdelta_w%7D%20-%201%7D%7Be%5E%7B%5Cdelta_w%7D%20%2B%201%7D(e%5E%7Bi%5Ceta%7D%20-%201)%5Cright)%2C%20%26%20%5Cbigl%7C%20%7Cv%7C%20-%20%7Cw%7C%20%5Cbigr%7C%20%3C%20%5Cvarepsilon_r%5Ctext%7B%20and%20%7D%7C%5Ceta%7C%20%3C%20%5Cvarepsilon_%7B%5Ceta%7D%20%20%5C%5C%0D%0A%5Ctext%7Bdirect%20calculation%7D%2C%20%26%5Ctext%7Botherwise%7D%0D%0A%5Cend%7Bcases%7D"></div>
 
 where <!-- $\eta = \varphi - \varpi + \pi = \operatorname{arg}(w) - \operatorname{arg}(v) + \pi \pmod{2\pi}$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Ceta%20%3D%20%5Cvarphi%20-%20%5Cvarpi%20%2B%20%5Cpi%20%3D%20%5Coperatorname%7Barg%7D(w)%20-%20%5Coperatorname%7Barg%7D(v)%20%2B%20%5Cpi%20%5Cpmod%7B2%5Cpi%7D"> with <!-- $|\eta| \ll 1$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%7C%5Ceta%7C%20%5Cll%201">.
 
@@ -138,7 +138,7 @@ For an accurate calculation of <!-- $\delta_u = \log\left( \frac{2}{r_u^*} - 1 \
 
 <div align="center"><img style="background: white;" src="https://i.upmath.me/svg/%5Clog%20x%20-%20%5Clog(x%5Cmp%201)%20%3D%20%5Csum_%7Bk%3D1%7D%5E%5Cinfty%20%5Cfrac%7B(%5Cpm%201)%5Ek%7D%7Bkx%5Ek%7D."></div>
 
-Thus, for <!-- $r_u^* < 2 \varepsilon_{\rho}$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/r_u%5E*%20%3C%202%20%5Cvarepsilon_%7B%5Crho%7D"> small enough,
+Thus, for <!-- $r_u^* < \varepsilon_r$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/r_u%5E*%20%3C%20%5Cvarepsilon_r"> small enough,
 
 <!-- $$ \begin{aligned}
 \delta_u = \log\left( \frac{2}{r_u^*} - 1 \right) &= \log \frac{2}{r_u^*} - \sum_{k=1}^\infty \frac{(r_u^*)^k}{k 2^k}
@@ -150,7 +150,7 @@ Thus, for <!-- $r_u^* < 2 \varepsilon_{\rho}$ --> <img style="transform: transla
 
 <div align="center"><img style="background: white;" src="https://i.upmath.me/svg/%5Cbegin%7Baligned%7D%0D%0A%5Cdelta_u%20%3D%20%5Clog%5Cleft(%20%5Cfrac%7B2%7D%7Br_u%5E*%7D%20-%201%20%5Cright)%20%26%3D%20%5Clog%20%5Cfrac%7B2%7D%7Br_u%5E*%7D%20-%20%5Csum_%7Bk%3D1%7D%5E%5Cinfty%20%5Cfrac%7B(r_u%5E*)%5Ek%7D%7Bk%202%5Ek%7D%0D%0A%5C%5C%26%3D%202%20%5Clog(e%5E%7B%5Cdelta_v%7D%20%2B%201)%20%2B%202%5Clog(e%5E%7B%5Cdelta_w%7D%20%2B%201)%20-%20%5Clog%208%20-%20(%5Cdelta_v%20%2B%20%5Cdelta_w)%0D%0A%5C%5C%26%5Cquad%20-%20%5Clog%20%7C1%2B%5Cbar%20v%20w%7C%20-%20%5Clog(%7C1%2B%5Cbar%20v%20w%7C%20%2B%20%7Cv%20%2B%20w%7C)%20-%20%5Csum_%7Bk%3D1%7D%5E%5Cinfty%20%5Cfrac%7B(r_u%5E*)%5Ek%7D%7Bk%202%5Ek%7D%0D%0A%5C%5C%26%3D%20(%5Cdelta_v%20%2B%20%5Cdelta_w)%20-%20%5Clog%208%20%2B%202%20%5Clog(1%20%2B%20e%5E%7B-%5Cdelta_v%7D)%20%2B%202%5Clog(1%20%2B%20e%5E%7B-%5Cdelta_w%7D)%0D%0A%5C%5C%26%5Cquad%20-%20%5Clog%20%7C1%2B%5Cbar%20v%20w%7C%20-%20%5Clog(%7C1%2B%5Cbar%20v%20w%7C%20%2B%20%7Cv%20%2B%20w%7C)%20-%20%5Csum_%7Bk%3D1%7D%5E%5Cinfty%20%5Cfrac%7B(r_u%5E*)%5Ek%7D%7Bk%202%5Ek%7D.%0D%0A%5Cend%7Baligned%7D"></div>
 
-Otherwise, just <!-- $\delta_u = \log(\frac{2}{r_u^*} - 1)$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cdelta_u%20%3D%20%5Clog(%5Cfrac%7B2%7D%7Br_u%5E*%7D%20-%201)"> would be enough.
+Otherwise, just <!-- $\delta_u = \log\left(\frac{2}{r_u^*} - 1\right)$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cdelta_u%20%3D%20%5Clog%5Cleft(%5Cfrac%7B2%7D%7Br_u%5E*%7D%20-%201%5Cright)"> would be enough.
 
 
 #### Calculation of <!-- $\boldsymbol{T_{e^{-i\theta} \dagger^m(w)} \circ T_v = R_\psi \circ T_u}$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cboldsymbol%7BT_%7Be%5E%7B-i%5Ctheta%7D%20%5Cdagger%5Em(w)%7D%20%5Ccirc%20T_v%20%3D%20R_%5Cpsi%20%5Ccirc%20T_u%7D">
@@ -167,5 +167,5 @@ and
 
 <div align="center"><img style="background: white;" src="https://i.upmath.me/svg/u%20%3D%20T_v(e%5E%7B-i%5Ctheta%7D%20%5Cdagger%5Em(w))"></div>
 
-using calculation methods described above, for appropriate epsilon values <!-- $\varepsilon_r$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cvarepsilon_r">, <!-- $\varepsilon_\eta$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cvarepsilon_%5Ceta">, and <!-- $\varepsilon_\rho$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cvarepsilon_%5Crho">.
+using calculation methods described above, for appropriate epsilon values <!-- $\varepsilon_r$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cvarepsilon_r"> and <!-- $\varepsilon_\eta$ --> <img style="transform: translateY(0.1em); background: white;" src="https://i.upmath.me/svg/%5Cvarepsilon_%5Ceta">.
 
