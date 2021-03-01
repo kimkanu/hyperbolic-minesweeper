@@ -51,7 +51,7 @@ However, this is not the end; we need to convert $T_v$s from/into Poincare disk 
 
 #### Calculation of $\boldsymbol{1 + \bar v w}$
 
-What we need to calculate is the value of $\psi$ and $u$ described above. Before that, let us first calculate $1 + \bar v w$ and $T_v(w)$ for arbitrary points $v$ and $w$ inside Poincare disk.
+What we need to calculate are the values of $\psi$ and $u$ described above. Before that, let us first calculate $1 + \bar v w$ and $T_v(w)$ for arbitrary points $v$ and $w$ inside Poincare disk.
 
 With the calculation of $1 + \bar{v} w$, the only bad situation is that $1 + \bar{v} w \approx 0$, that is, $|v|,|w|\approx 1$ and $\operatorname{arg}(w) - \operatorname{arg}(v) \approx \pi \pmod{2\pi}$. Otherwise, the value will be quite reliable.
 
@@ -82,7 +82,7 @@ $$\operatorname{arg}(u) = \operatorname{arg}(v + w) - \operatorname{arg}(1 + \ba
 
 can be obtained.
 
-Now, we need to obtain $\delta_u$. Let $v$ and $w$ have $\delta_v$ and $\delta_w$ Poincare disk norm, i.e.,
+Now, we need to obtain $\delta_u$. Let $v$ and $w$ have $\delta_v$ and $\delta_w$ as their Poincare disk norm, resp., i.e.,
 
 $$r_v^* = 1 - |v| = \frac{2}{e^{\delta_v} + 1}, \quad r_w^* = 1 - |w| = \frac{2}{e^{\delta_w} + 1}.$$
 
